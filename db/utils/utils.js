@@ -1,5 +1,13 @@
 exports.formatDates = list => {
-    return []
+    const objCopy = list.map(obj => Object.assign({}, obj));
+
+    const formattedDate = objCopy.map(obj => {
+        const time = obj.created_at
+        obj.created_at = new Date(time)
+        return obj
+    });
+
+    return formattedDate
 };
 
 exports.makeRefObj = list => {
@@ -12,8 +20,6 @@ exports.makeRefObj = list => {
 };
 
 exports.formatComments = (comments, articleRef) => { };
-
-
 
 
 

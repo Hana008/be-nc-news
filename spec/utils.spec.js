@@ -10,7 +10,7 @@ This utility function should be able to take an array (list) of objects and retu
 
 hint: Think carefully about how you can test that this has worked - it's not by copying and pasting a sql timestamp from the terminal into your test
 */
-describe('formatDates', () => {
+describe.only('formatDates', () => {
   it('returns an empty array when passed an empty array', () => {
     expect(formatDates([])).to.eql([])
   });
@@ -21,7 +21,32 @@ describe('formatDates', () => {
     expect(formatDates(input)).to.not.equal(input)
   });
   it('returns a new formatted object in an array with the timestamp converted into a Javascript date object when passed an array containing an object with a key value pair for a timestamp', () => {
-    const input = [{ author: 'Hana', }];
+    const input = [{ author: 'Hana', created_at: 1584373012266}];
+    const expected = [{ author: 'Hana', created_at: new Date(1584373012266)}];
+    expect(formatDates(input)).to.eql(expected)
+  });
+  it('returns new formatted objects in an array with the timestamp converted into a Javascript date object when passed an array containing objects with a key value pair for a timestamp', () => {
+    const input = [
+      {
+      author: "Hana",
+        created_at: 1542284514171,
+      },
+      {
+        author: "Mohamed",
+        created_at: 1416140514171,
+      }
+    ]
+    const expected =  [
+      {
+        author: "Hana",
+        created_at: new Date(1542284514171),
+      },
+      {
+        author: "Mohamed",
+        created_at: new Date(1416140514171),
+      }
+    ]
+    expect(formatDates(input)).to.eql(expected)
   });
 });
 
@@ -52,4 +77,4 @@ describe('makeRefObj', () => {
   });
 });
 
-describe('formatComments', () => {});
+
