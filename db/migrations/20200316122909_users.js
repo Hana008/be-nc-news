@@ -3,11 +3,11 @@ exports.up = function (knex) {
     console.log('creating users table...');
 
     return knex.schema.createTable(
-        ('users', function (usersTable) {
+        'users', function (usersTable) {
             usersTable.string('username').primary().notNullable();
             usersTable.string('avatar_url');
             usersTable.string('name');
-        })
+        }
     )
 
 };
