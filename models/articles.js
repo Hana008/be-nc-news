@@ -24,8 +24,15 @@ const insertComment = function (article_id, body) {
     return connection('comments').where('author', body.username).insert(comment).returning('*');
 };
 
-const selectComments = function (article_id) {
-    return connection('comments').where('article_id', article_id).returning('*');
+const selectComments = function (article_id, sort_by, order) {
+    if (sort_by === undefined) {
+        return connection('comments').where('article_id', article_id).orderBy('created_at', 'desc').returning('*');
+    } else if (sort_by && order) {
+        return connection('comments').orderBy(sort_by, order).returning('*');
+    } else if (sort_by && !order) {
+        return connection('comments').orderBy(sort_by, 'desc').returning('*');
+
+    }
 };
 
 module.exports = { selectArticleById, updateArticle, insertComment, selectComments };

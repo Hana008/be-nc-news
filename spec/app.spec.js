@@ -1,7 +1,10 @@
 process.env.NODE_ENV = 'test';
 const app = require('../app');
 const request = require('supertest');
-const { expect } = require('chai');
+const chai = require('chai');
+const chaiSorted = require('chai-sorted');
+const { expect } = chai;
+chai.use(chaiSorted);
 const connection = require('../db/connection')
 
 describe('/api', () => {
@@ -64,7 +67,7 @@ describe('/api', () => {
                     //   expect(res.body.comment[0].created_at).to.eql()
                 });
         });
-        it.only('GET returns status code 200 and an object with the key of comments and value of an array of comments as objects containing all properties', () => {
+        it('GET returns status code 200 and an object with the key of comments and value of an array of comments as objects containing all properties', () => {
             return request(app)
                 .get('/api/articles/1/comments')
                 .expect(200)
@@ -72,6 +75,47 @@ describe('/api', () => {
                     expect(res.body.comments).to.be.an('array');
                     expect(res.body.comments.length).to.eql(13);
                     expect(res.body.comments[0]).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                    //add foreach check all objects keys
+                });
+        });
+        it("GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query's column passed in", () => {
+            return request(app)
+                .get('/api/articles/1/comments?sort_by=votes')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.comments).to.be.an('array');
+                    expect(res.body.comments).to.be.sortedBy('votes', { descending: true });
+                    //test for all keys
+                });
+        });
+        it('GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in a default order of the column "created_at" when a sort_by query is not passed', () => {
+            return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.comments).to.be.an('array');
+                    expect(res.body.comments).to.be.sortedBy('created_at', { descending: true });
+                    //test for all keys
+                });
+        });
+        it("GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query's column and order passed in", () => {
+            return request(app)
+                .get('/api/articles/1/comments?sort_by=comment_id&order=asc')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.comments).to.be.an('array');
+                    expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
+                    //test for all keys
+                });
+        });
+        it("GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query's column in a default descending order when order query is not passed in to specify'", () => {
+            return request(app)
+                .get('/api/articles/1/comments?sort_by=author')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.comments).to.be.an('array');
+                    expect(res.body.comments).to.be.sortedBy('author', { descending: true });
+                    //test for all keys
                 });
         });
     });
