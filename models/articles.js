@@ -20,8 +20,12 @@ const insertComment = function (article_id, body) {
         'article_id': article_id,
         'author': body.username,
         'body': body.body
-    }
-    return connection('comments').where('author', body.username).insert(comment).returning('*')
+    };
+    return connection('comments').where('author', body.username).insert(comment).returning('*');
 };
 
-module.exports = { selectArticleById, updateArticle, insertComment };
+const selectComments = function (article_id) {
+    return connection('comments').where('article_id', article_id).returning('*');
+};
+
+module.exports = { selectArticleById, updateArticle, insertComment, selectComments };

@@ -64,5 +64,15 @@ describe('/api', () => {
                     //   expect(res.body.comment[0].created_at).to.eql()
                 });
         });
+        it.only('GET returns status code 200 and an object with the key of comments and value of an array of comments as objects containing all properties', () => {
+            return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.comments).to.be.an('array');
+                    expect(res.body.comments.length).to.eql(13);
+                    expect(res.body.comments[0]).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                });
+        });
     });
 });
