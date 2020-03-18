@@ -12,14 +12,16 @@ const selectArticleById = function (article_id) {
 };
 
 const updateArticle = function (voteNum, article_id, selectArticleById) {
-    return selectArticleById(article_id).then((article) => {
-        article[0].votes += voteNum
-        return article
-    })
+    return connection('articles').where('article_id', article_id).increment('votes', voteNum).returning('*');
 };
 
-const insertComment = function(article_id, body) {
-  
+const insertComment = function (article_id, body) {
+    const comment = {
+        'article_id': article_id,
+        'author': body.username,
+        'body': body.body
+    }
+    return connection('comments').where('author', body.username).insert(comment).returning('*')
 };
 
-module.exports = { selectArticleById, updateArticle , insertComment};
+module.exports = { selectArticleById, updateArticle, insertComment };
