@@ -1,21 +1,19 @@
 
 exports.up = function(knex) {
-    console.log('creating articles table...');
 
     return knex.schema.createTable('articles', function(articlesTable) {
-        articlesTable.increments('article_id').primary();
-        articlesTable.string('title');
-        articlesTable.text('body');
-        articlesTable.integer('votes').defaultTo(0);
-        articlesTable.string('topic').references('topics.slug');
-        articlesTable.string('author').references('users.username');
-        articlesTable.timestamps(true, true)
+        articlesTable.increments('article_id').primary().notNullable();
+        articlesTable.string('title').notNullable().unique();
+        articlesTable.text('body').notNullable();
+        articlesTable.integer('votes').defaultTo(0).notNullable();
+        articlesTable.string('topic').references('topics.slug').notNullable();
+        articlesTable.string('author').references('users.username').notNullable();
+        articlesTable.timestamp('created_at').defaultTo(knex.fn.now()).notNullable()
     })
   
 };
 
 exports.down = function(knex) {
-  console.log('dropping articles table...');
 
   return knex.schema.dropTable('articles')
 };
