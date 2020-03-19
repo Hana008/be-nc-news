@@ -92,6 +92,21 @@ describe('/api', () => {
                 expect(res.body.articles).to.be.sortedBy('title', {descending: true})
             });   
         });
+        it.only('GET returns 200 and an object with a key of articles and value of an array with article data for the author queried as objects with all properties present', () => {
+            return request(app)
+            .get('/api/articles?author=butter_bridge')
+            .expect(200)
+            .then(res => {
+                expect(res.body.articles).to.be.an('array');
+                expect(res.body.articles.forEach(article => {
+                    expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                }));
+                expect(res.body.articles.forEach(article => { 
+                    expect(article.author).to.equal('butter_bridge')
+                }))
+                expect(res.body.articles.length).to.equal(3)
+            });   
+        });
         describe('/:article_id', () => {
             it('GET returns status code 200 and an object with a key of article and value of an array with the article data as an object that has all properties', () => {
                 return request(app)
