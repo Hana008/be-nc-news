@@ -1,4 +1,12 @@
-const { selectArticleById, updateArticle, insertComment, selectComments } = require('../models/articles')
+const { selectArticleById, updateArticle, insertComment, selectComments, selectAllArticles } = require('../models/articles')
+
+const getAllArticles = function (req, res, next) {
+    const {sort_by} = req.query;
+    const {order} = req.query;
+    selectAllArticles(sort_by, order).then((articles) => {
+        res.status(200).send({articles})
+    }).catch(next)
+};
 
 const getArticleById = function (req, res, next) {
     const { article_id } = req.params;
@@ -32,4 +40,4 @@ const getComments = function (req, res, next) {
     }).catch(next)
 }
 
-module.exports = { getArticleById, patchArticleById, postComment, getComments }
+module.exports = { getAllArticles, getArticleById, patchArticleById, postComment, getComments }

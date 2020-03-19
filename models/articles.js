@@ -1,5 +1,33 @@
 const connection = require('../db/connection');
 
+const selectAllArticles = function (sort_by, order) {
+    if (sort_by && order) {
+        return connection
+            .select('articles.*')
+            .from('articles')
+            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+            .groupBy('articles.article_id')
+            .count({ comment_count: 'comment_id' })
+            .orderBy(sort_by, order)
+    } else if (!sort_by && !order) {
+        return connection
+            .select('articles.*')
+            .from('articles')
+            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+            .groupBy('articles.article_id')
+            .count({ comment_count: 'comment_id' })
+            .orderBy('created_at', 'desc')
+    } else {
+        return connection
+            .select('articles.*')
+            .from('articles')
+            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+            .groupBy('articles.article_id')
+            .count({ comment_count: 'comment_id' })
+            .orderBy(sort_by, 'desc')
+    }
+};
+
 const selectArticleById = function (article_id) {
     return connection('articles').where('article_id', article_id).then((article) => {
         const articleData = article;
@@ -35,4 +63,4 @@ const selectComments = function (article_id, sort_by, order) {
     }
 };
 
-module.exports = { selectArticleById, updateArticle, insertComment, selectComments };
+module.exports = { selectAllArticles, selectArticleById, updateArticle, insertComment, selectComments };
