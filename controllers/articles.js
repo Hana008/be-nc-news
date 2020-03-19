@@ -3,8 +3,9 @@ const { selectArticleById, updateArticle, insertComment, selectComments, selectA
 const getAllArticles = function (req, res, next) {
     const {sort_by} = req.query;
     const {order} = req.query;
-    const {author} = req.query
-    selectAllArticles(sort_by, order, author).then((articles) => {
+    const {author} = req.query;
+    const {topic} = req.query;
+    selectAllArticles(sort_by, order, author, topic).then((articles) => {
         res.status(200).send({articles})
     }).catch(next)
 };

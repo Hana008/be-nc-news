@@ -1,15 +1,7 @@
 const connection = require('../db/connection');
 
-const selectAllArticles = function (sort_by, order, author) {
-    if (sort_by && order && !author) {
-        return connection
-            .select('articles.*')
-            .from('articles')
-            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-            .groupBy('articles.article_id')
-            .count({ comment_count: 'comment_id' })
-            .orderBy(sort_by, order)
-    } else if (!sort_by && !order && !author) {
+const selectAllArticles = function (sort_by, order, author, topic) {
+    if (!sort_by && !order && !author && !topic) {
         return connection
             .select('articles.*')
             .from('articles')
@@ -17,7 +9,16 @@ const selectAllArticles = function (sort_by, order, author) {
             .groupBy('articles.article_id')
             .count({ comment_count: 'comment_id' })
             .orderBy('created_at', 'desc')
-    } else if(sort_by && !order && !author) {
+
+    } else if (sort_by && order && !author && !topic) {
+        return connection
+            .select('articles.*')
+            .from('articles')
+            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+            .groupBy('articles.article_id')
+            .count({ comment_count: 'comment_id' })
+            .orderBy(sort_by, order)
+    } else if (sort_by && !order && !author && !topic) {
         return connection
             .select('articles.*')
             .from('articles')
@@ -25,17 +26,23 @@ const selectAllArticles = function (sort_by, order, author) {
             .groupBy('articles.article_id')
             .count({ comment_count: 'comment_id' })
             .orderBy(sort_by, 'desc')
-    } else if (author) {
-        // console.log(author)
+    } else if (author && !sort_by && !order && !topic) {
         return connection
-        .select('articles.*')
-        .from('articles')
-        .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-        .groupBy('articles.article_id')
-        .count({ comment_count: 'comment_id' })
-        .where('author', author)
+            .select('articles.*')
+            .from('articles')
+            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+            .groupBy('articles.article_id')
+            .count({ comment_count: 'comment_id' })
+            .where('articles.author', author)
+    } else if (topic && !sort_by && !order && !author) {
+        return connection
+            .select('articles.*')
+            .from('articles')
+            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+            .groupBy('articles.article_id')
+            .count({ comment_count: 'comment_id' })
+            .where('articles.topic', topic)
     }
-
 };
 
 const selectArticleById = function (article_id) {

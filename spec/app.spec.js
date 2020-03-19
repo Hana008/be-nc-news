@@ -42,70 +42,85 @@ describe('/api', () => {
                     expect(res.body.articles.forEach(article => {
                         expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
                     }))
-                });    
+                });
         });
         it('GET returns 200 and an object with a key of articles and value of an array with the article data as objects with all properties present and sorted by the query column', () => {
             return request(app)
-            .get('/api/articles?sort_by=article_id')
-            .expect(200)
-            .then(res => {
-                expect(res.body.articles).to.be.an('array');
-                expect(res.body.articles.forEach(article => {
-                    expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
-                }));
-                expect(res.body.articles).to.be.sortedBy('article_id', {descending: true});
-            });   
+                .get('/api/articles?sort_by=article_id')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles).to.be.sortedBy('article_id', { descending: true });
+                });
         });
         it('GET returns 200 and an object with a key of articles and value of an array with the article data as objects with all properties present and default sorted by date created when no user query present to specify', () => {
             return request(app)
-            .get('/api/articles')
-            .expect(200)
-            .then(res => {
-                expect(res.body.articles).to.be.an('array');
-                expect(res.body.articles.forEach(article => {
-                    expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
-                }));
-                expect(res.body.articles).to.be.sortedBy('created_at', {descending: true});
-            });   
+                .get('/api/articles')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles).to.be.sortedBy('created_at', { descending: true });
+                });
         });
         it('GET returns 200 and an object with a key of articles and value of an array with the article data as objects with all properties present and sorted by the query column and order', () => {
             return request(app)
-            .get('/api/articles?sort_by=author&order=asc')
-            .expect(200)
-            .then(res => {
-                expect(res.body.articles).to.be.an('array');
-                expect(res.body.articles.forEach(article => {
-                    expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
-                }));
-                expect(res.body.articles).to.be.sortedBy('author', {ascending: true})
-            });   
+                .get('/api/articles?sort_by=author&order=asc')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles).to.be.sortedBy('author', { ascending: true })
+                });
         });
         it('GET returns 200 and an object with a key of articles and value of an array with the article data as objects with all properties present and sorted by the query column and defaults to descending order when order is not queried', () => {
             return request(app)
-            .get('/api/articles?sort_by=title')
-            .expect(200)
-            .then(res => {
-                expect(res.body.articles).to.be.an('array');
-                expect(res.body.articles.forEach(article => {
-                    expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
-                }));
-                expect(res.body.articles).to.be.sortedBy('title', {descending: true})
-            });   
+                .get('/api/articles?sort_by=title')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles).to.be.sortedBy('title', { descending: true })
+                });
         });
-        it.only('GET returns 200 and an object with a key of articles and value of an array with article data for the author queried as objects with all properties present', () => {
+        it('GET returns 200 and an object with a key of articles and value of an array with article data for the author queried as objects with all properties present', () => {
             return request(app)
-            .get('/api/articles?author=butter_bridge')
-            .expect(200)
-            .then(res => {
-                expect(res.body.articles).to.be.an('array');
-                expect(res.body.articles.forEach(article => {
-                    expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
-                }));
-                expect(res.body.articles.forEach(article => { 
-                    expect(article.author).to.equal('butter_bridge')
-                }))
-                expect(res.body.articles.length).to.equal(3)
-            });   
+                .get('/api/articles?author=butter_bridge')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles.forEach(article => {
+                        expect(article.author).to.equal('butter_bridge')
+                    }))
+                    expect(res.body.articles.length).to.equal(3)
+                });
+        });
+        it('GET returns 200 and an object with a key of articles and value of an array with article data for the topic queried as objects with all properties present', () => {
+            return request(app)
+                .get('/api/articles?topic=cats')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles.forEach(article => {
+                        expect(article.topic).to.equal('cats')
+                    }))
+                    expect(res.body.articles.length).to.equal(1)
+                });
         });
         describe('/:article_id', () => {
             it('GET returns status code 200 and an object with a key of article and value of an array with the article data as an object that has all properties', () => {
@@ -198,5 +213,24 @@ describe('/api', () => {
             });
         });
     });
-
+    describe('/comments', () => {
+        describe('/:comment_id', () => {
+            it('PATCH returns status code 201 and n object with the key of comments and value of an array containing a comment as an object that has all properties when passed an object with a property value of a number that the comments vote should be adjusted by', () => {
+                return request(app)
+                    .patch('/api/comments/1')
+                    .send({ inc_votes: -1 })
+                    .expect(201)
+                    .then(res => {
+                        expect(res.body.comment).to.be.an('array');
+                        expect(res.body.comment[0]).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+                        expect(res.body.comment[0].votes).to.equal(15);
+                    });
+            });
+            it('DELETE returns status code 204 and no content', () => {
+                return request(app)
+                .delete('/api/comments/1')
+                .expect(204)
+            });
+        });
+    });
 });
