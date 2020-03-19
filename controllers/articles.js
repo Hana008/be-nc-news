@@ -1,10 +1,7 @@
 const { selectArticleById, updateArticle, insertComment, selectComments, selectAllArticles } = require('../models/articles')
 
 const getAllArticles = function (req, res, next) {
-    const {sort_by} = req.query;
-    const {order} = req.query;
-    const {author} = req.query;
-    const {topic} = req.query;
+    const {sort_by, order, author, topic} = req.query;
     selectAllArticles(sort_by, order, author, topic).then((articles) => {
         res.status(200).send({articles})
     }).catch(next)
@@ -12,7 +9,7 @@ const getAllArticles = function (req, res, next) {
 
 const getArticleById = function (req, res, next) {
     const { article_id } = req.params;
-    selectArticleById(article_id).then((article) => {
+    selectArticleById(article_id).then(([article]) => {
         res.status(200).send({ article })
     }).catch(next)
 };
@@ -20,8 +17,8 @@ const getArticleById = function (req, res, next) {
 const patchArticleById = function (req, res, next) {
     const { article_id } = req.params;
     const { inc_votes } = req.body;
-    updateArticle(inc_votes, article_id, selectArticleById).then((article) => {
-        res.status(201).send({ article });
+    updateArticle(inc_votes, article_id, selectArticleById).then(([article]) => {
+        res.status(200).send({ article });
     }).catch(next)
 };
 

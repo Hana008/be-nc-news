@@ -10,6 +10,14 @@ const connection = require('../db/connection')
 describe('/api', () => {
     beforeEach(() => connection.seed.run());
     after(() => connection.destroy());
+    it('DELETE returns 405 and error message', () => {
+        return request(app)
+        .delete('/api')
+        .expect(405)
+        .then(res => {
+            expect(res.body).to.eql({ msg: 'method not allowed' });
+        });
+    });
     describe('/topics', () => {
         it('GET returns status code 200 and an object with the key of topics and value of an array with the topics data as objects that have all properties', () => {
             return request(app)
@@ -20,6 +28,14 @@ describe('/api', () => {
                     expect(res.body.topics[0]).to.contain.keys('slug', 'description');
                 });
         });
+        it('PATCH returns status code 405 and message', () => {
+            return request(app)
+                .patch('/api/topics')
+                .expect(405)
+                .then(res => {
+                    expect(res.body).to.eql({ msg: 'method not allowed' });
+                });
+        });
     })
     describe('/users/:username', () => {
         it('GET returns status code 200 and an object with the key of users and value of an array with the users data as an object that has all properties', () => {
@@ -27,9 +43,25 @@ describe('/api', () => {
                 .get('/api/users/lurker')
                 .expect(200)
                 .then(res => {
-                    expect(res.body.user).to.be.an('array');
-                    expect(res.body.user[0]).to.contain.keys('username', 'avatar_url', 'name');
+                    expect(res.body.user).to.be.an('object');
+                    expect(res.body.user).to.contain.keys('username', 'avatar_url', 'name');
                 });
+        });
+        it('GET returns status code 404 and message when user queries a non-existent username', () => {
+            return request(app)
+                .get('/api/users/not-a-username')
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.eql({msg: 'column not found!'} )
+                });
+        });
+        it('PUT returns status code 405 and message when using an invalid method', () => {
+            return request(app)
+                    .put('/api/users/lurker')
+                    .expect(405)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'method not allowed' });
+                    });
         });
     });
     describe('/articles', () => {
@@ -122,26 +154,81 @@ describe('/api', () => {
                     expect(res.body.articles.length).to.equal(1)
                 });
         });
+        it('GET returns 200 and an object with a key of articles and value of an array with article data in the order queried as objects with all properties present', () => {
+            return request(app)
+                .get('/api/articles?order=asc')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.be.an('array');
+                    expect(res.body.articles.forEach(article => {
+                        expect(article).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count')
+                    }));
+                    expect(res.body.articles).to.be.sortedBy('created_at', { ascending: true })
+                });
+        });
+        it('PATCH returns status code 405 and message', () => {
+            return request(app)
+                .patch('/api/articles')
+                .expect(405)
+                .then(res => {
+                    expect(res.body).to.eql({ msg: 'method not allowed' });
+                });
+        });
+        it('GET returns status code 404 and message when user queries a non existing topic', () => {
+            return request(app)
+                .get('/api/articles?topic=not-a-topic')
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.eql({ msg: 'column not found!' });
+                });
+        });
+        it('GET returns status code 404 and message when user queries a non existing author', () => {
+            return request(app)
+            .get('/api/articles?author=not-an=author')
+            .expect(404)
+            .then(res => {
+                expect(res.body).to.eql({ msg: 'column not found!' });
+            });
+        });
         describe('/:article_id', () => {
             it('GET returns status code 200 and an object with a key of article and value of an array with the article data as an object that has all properties', () => {
                 return request(app)
                     .get('/api/articles/1')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.article).to.be.an('array');
-                        expect(res.body.article[0]).to.contain.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
+                        expect(res.body.article).to.be.an('object');
+                        expect(res.body.article).to.contain.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
+                        expect(res.body.article.comment_count).to.equal(5)
                     });
             });
             it('PATCH returns status code 201 and an object with a key of article and value of an array with the article data containing all properties and the votes property adjusted by the value passed in', () => {
                 return request(app)
                     .patch('/api/articles/1')
                     .send({ inc_votes: -1 })
-                    .expect(201)
+                    .expect(200)
                     .then(res => {
-                        expect(res.body.article).to.be.an('array');
-                        expect(res.body.article[0]).to.contain.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes');
-                        expect(res.body.article[0].votes).to.equal(99);
+                        expect(res.body.article).to.be.an('object');
+                        expect(res.body.article).to.contain.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes');
+                        expect(res.body.article.votes).to.equal(99);
                     });
+            });
+            it('PATCH returns status code 200 and an unchanged article when no request body is sent', () => {
+                return request(app)
+                    .patch('/api/articles/1')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.article).to.be.an('object');
+                        expect(res.body.article).to.contain.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes');
+                        expect(res.body.article.votes).to.equal(100);
+                    });
+            });
+            it('PUT returns status code 405 and message', () => {
+                return request(app)
+                    .put('/api/articles/1')
+                    .expect(405)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'method not allowed' });
+                    })
             });
             describe('/comments', () => {
                 it('POST returns status code 201 and an object with the key of comment and value of an array with an object containing the posted comment', () => {
@@ -210,26 +297,44 @@ describe('/api', () => {
                             //test for all keys
                         });
                 });
+                it.only('GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query', () => {
+                    return request(app)
+                    .get('/api/articles/1/comments?order=asc')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.comments).to.be.an('array');
+                        expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
+                        //test for all keys
+                    });
+                });
             });
         });
     });
     describe('/comments', () => {
         describe('/:comment_id', () => {
-            it('PATCH returns status code 201 and n object with the key of comments and value of an array containing a comment as an object that has all properties when passed an object with a property value of a number that the comments vote should be adjusted by', () => {
+            it('PATCH returns status code 200 and n object with the key of comments and value of an array containing a comment as an object that has all properties when passed an object with a property value of a number that the comments vote should be adjusted by', () => {
                 return request(app)
                     .patch('/api/comments/1')
                     .send({ inc_votes: -1 })
-                    .expect(201)
+                    .expect(200)
                     .then(res => {
-                        expect(res.body.comment).to.be.an('array');
-                        expect(res.body.comment[0]).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
-                        expect(res.body.comment[0].votes).to.equal(15);
+                        expect(res.body.comment).to.be.an('object');
+                        expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+                        expect(res.body.comment.votes).to.equal(15);
                     });
             });
             it('DELETE returns status code 204 and no content', () => {
                 return request(app)
-                .delete('/api/comments/1')
-                .expect(204)
+                    .delete('/api/comments/1')
+                    .expect(204)
+            });
+            it('PUT returns status code 405 and message', () => {
+                return request(app)
+                    .put('/api/comments/1')
+                    .expect(405)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'method not allowed' });
+                    });
             });
         });
     });

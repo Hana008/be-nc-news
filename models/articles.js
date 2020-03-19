@@ -1,48 +1,42 @@
 const connection = require('../db/connection');
 
 const selectAllArticles = function (sort_by, order, author, topic) {
-    if (!sort_by && !order && !author && !topic) {
-        return connection
-            .select('articles.*')
-            .from('articles')
-            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-            .groupBy('articles.article_id')
-            .count({ comment_count: 'comment_id' })
-            .orderBy('created_at', 'desc')
+    //theres always going to be a default order of descending and sorted by created_at
+    //then modify
+    //then use checkExists function
 
-    } else if (sort_by && order && !author && !topic) {
-        return connection
-            .select('articles.*')
-            .from('articles')
-            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-            .groupBy('articles.article_id')
-            .count({ comment_count: 'comment_id' })
-            .orderBy(sort_by, order)
-    } else if (sort_by && !order && !author && !topic) {
-        return connection
-            .select('articles.*')
-            .from('articles')
-            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-            .groupBy('articles.article_id')
-            .count({ comment_count: 'comment_id' })
-            .orderBy(sort_by, 'desc')
-    } else if (author && !sort_by && !order && !topic) {
-        return connection
-            .select('articles.*')
-            .from('articles')
-            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-            .groupBy('articles.article_id')
-            .count({ comment_count: 'comment_id' })
-            .where('articles.author', author)
-    } else if (topic && !sort_by && !order && !author) {
-        return connection
-            .select('articles.*')
-            .from('articles')
-            .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-            .groupBy('articles.article_id')
-            .count({ comment_count: 'comment_id' })
-            .where('articles.topic', topic)
-    }
+    return connection
+        .select('articles.*')
+        .from('articles')
+        .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+        .groupBy('articles.article_id')
+        .count({ comment_count: 'comment_id' })
+        .orderBy(sort_by || 'created_at', order || 'desc')
+        .modify((query) => {
+            if (author && !topic) {
+                query
+                    .where('articles.author', author)
+            }
+        }).modify((query) => {
+            if (topic && !author) {
+                query
+                    .where('articles.topic', topic)
+            }
+        })
+        .then((articleRes) => {
+            if (articleRes.length === 0) {
+                return Promise.reject({ msg: 'column not found!' })
+            } else {
+                return articleRes
+            }
+        })
+};
+
+const checkExists = function (table, column, query) {
+    return connection(table)
+        .select()
+        .where({ [column]: query })
+        .first()
 };
 
 const selectArticleById = function (article_id) {
@@ -57,7 +51,8 @@ const selectArticleById = function (article_id) {
 };
 
 const updateArticle = function (voteNum, article_id, selectArticleById) {
-    return connection('articles').where('article_id', article_id).increment('votes', voteNum).returning('*');
+    
+    return connection('articles').where('article_id', article_id).increment('votes', voteNum || 0).returning('*');
 };
 
 const insertComment = function (article_id, body) {

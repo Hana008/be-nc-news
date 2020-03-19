@@ -4,7 +4,10 @@ const selectUser = function (username) {
     return connection('users')
         .where('username', username)
         .then((user) => {
-            return { user }
+            if(user.length === 0) {
+                return Promise.reject({msg: 'column not found!'})
+            }
+            return user
         })
 };
 

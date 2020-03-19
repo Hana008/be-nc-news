@@ -7,7 +7,9 @@ app.use(express.json())
 app.use('/api', apiRouter);
 
 app.use((err, req, res, next) => {
-   res.status(400).send({msg: 'internal error!'})
+   
+    res.status(404).send(err)
+   
 })
 
 module.exports = app;
