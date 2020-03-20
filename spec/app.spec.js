@@ -129,7 +129,7 @@ describe('/api', () => {
                 .get('/api/articles?sort_by=not-a-column')
                 .expect(400)
                 .then(res => {
-                    expect(res.body).to.eql({msg: 'column does not exist!'});
+                    expect(res.body).to.eql({ msg: 'column does not exist!' });
                 })
         });
         it('GET returns 200 and an object with a key of articles and value of an array with article data for the author queried as objects with all properties present', () => {
@@ -249,7 +249,7 @@ describe('/api', () => {
             it('PATCH returns status code 400 and informative message when an invalid value is passed in to adjust votes', () => {
                 return request(app)
                     .patch('/api/articles/1')
-                    .send({ inc_votes: 'invalid value'})
+                    .send({ inc_votes: 'invalid value' })
                     .expect(400)
                     .then(res => {
                         expect(res.body).to.eql({ msg: 'invalid data type!' });
@@ -263,14 +263,14 @@ describe('/api', () => {
                         expect(res.body).to.eql({ msg: 'method not allowed' });
                     })
             });
-           it('GET returns status code 400 and informative message when an invalid id is requested', () => {
-            return request(app)
-            .get('/api/articles/invalid-id')
-            .expect(400)
-            .then(res => {
-                expect(res.body).to.eql({ msg: 'invalid data type!' });
-            })
-           });
+            it('GET returns status code 400 and informative message when an invalid id is requested', () => {
+                return request(app)
+                    .get('/api/articles/invalid-id')
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'invalid data type!' });
+                    })
+            });
             describe('/comments', () => {
                 it('POST returns status code 201 and an object with the key of comment and value of an array with an object containing the posted comment', () => {
                     return request(app)
@@ -373,6 +373,22 @@ describe('/api', () => {
                             expect(res.body).to.eql({ msg: 'id does not exist!' });
                         });
                 });
+                it('GET returns status code 400 when invalid is requested', () => {
+                    return request(app)
+                        .get('/api/articles/not-a-valid-id/comments')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'invalid data type!' });
+                        });
+                });
+                it('GET returns status code and informative message when query for sort_by with a non-existing column is requested', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?sort_by=not-existent-column')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'column does not exist!' });
+                        });
+                });
                 it('PUT returns status code 405 and informative message', () => {
                     return request(app)
                         .put('/api/articles/1/comments')
@@ -408,6 +424,15 @@ describe('/api', () => {
                     .expect(405)
                     .then(res => {
                         expect(res.body).to.eql({ msg: 'method not allowed' });
+                    });
+            });
+            it.only('PATCH returns status code 400 and informative message when a patch request object with an invalid value is passed in', () => {
+                return request(app)
+                    .patch('/api/comments/1')
+                    .send({ inc_votes: 'not-a-valid-value' })
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'invalid data type!' });
                     });
             });
         });
