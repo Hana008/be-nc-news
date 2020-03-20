@@ -35,6 +35,7 @@ const getComments = function (req, res, next) {
     const { order } = req.query
     const { sort_by } = req.query;
     selectComments(article_id, sort_by, order).then((comments) => {
+        // console.log(comments)
         res.status(200).send({ comments });
     }).catch(next)
 }

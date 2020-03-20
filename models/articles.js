@@ -77,14 +77,32 @@ const insertComment = function (article_id, body) {
 };
 
 const selectComments = function (article_id, sort_by, order) {
-    if (sort_by === undefined) {
-        return connection('comments').where('article_id', article_id).orderBy('created_at', 'desc').returning('*');
-    } else if (sort_by && order) {
-        return connection('comments').orderBy(sort_by, order).returning('*');
-    } else if (sort_by && !order) {
-        return connection('comments').orderBy(sort_by, 'desc').returning('*');
+    // if (!sort_by && !order) {
+    //     return connection('comments').where('article_id', article_id).orderBy('created_at', 'desc').returning('*');
+    // } else if (sort_by && order) {
+    //     return connection('comments').orderBy(sort_by, order).returning('*');
+    // } else if (sort_by && !order) {
+    //     return connection('comments').orderBy(sort_by, 'desc').returning('*');
+    // } else if (order && !sort_by) {
+    //     return connection('comments').orderBy('created_at', order).returning('*');
+    // }
 
-    }
+    return connection('comments').where('article_id', article_id).orderBy(sort_by || 'created_at', order || 'desc')
+        .then((commentData) => {
+            if (!commentData.length) {
+                return Promise.all([checkExists('comments', 'article_id', article_id), commentData])
+            }
+            else {
+                return [true, commentData]
+            }
+        })
+        .then(([articleExists, commentData]) => {
+            if (articleExists) {
+                return commentData
+            } else {
+                return Promise.reject({ msg: 'id does not exist!' })
+            }
+        })
 };
 
 module.exports = { selectAllArticles, selectArticleById, updateArticle, insertComment, selectComments };

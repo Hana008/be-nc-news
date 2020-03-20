@@ -361,8 +361,16 @@ describe('/api', () => {
                         .expect(200)
                         .then(res => {
                             expect(res.body.comments).to.be.an('array');
-                            expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
+                            expect(res.body.comments).to.be.sortedBy('created_at', { ascending: true });
                             //test for all keys
+                        });
+                });
+                it('GET returns status code 404 and informative message when a valid but non-existent id is requested', () => {
+                    return request(app)
+                        .get('/api/articles/1000/comments')
+                        .expect(404)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'id does not exist!' });
                         });
                 });
                 it('PUT returns status code 405 and informative message', () => {
