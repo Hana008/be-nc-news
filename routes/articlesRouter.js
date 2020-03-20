@@ -9,5 +9,6 @@ articlesRouter.post('/:article_id/comments', postComment);
 articlesRouter.get('/:article_id/comments', getComments);
 articlesRouter.patch('/', send405Error);
 articlesRouter.put('/:article_id', send405Error)
+articlesRouter.put('/:article_id/comments', send405Error)
 
 module.exports = articlesRouter;

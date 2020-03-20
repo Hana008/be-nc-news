@@ -25,7 +25,7 @@ const patchArticleById = function (req, res, next) {
 const postComment = function (req, res, next) {
     const { article_id } = req.params;
     const body = req.body;
-    insertComment(article_id, body).then((comment) => {
+    insertComment(article_id, body).then(([comment]) => {
         res.status(201).send({ comment });
     }).catch(next)
 };

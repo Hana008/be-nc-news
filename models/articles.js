@@ -1,5 +1,13 @@
 const connection = require('../db/connection');
 
+const checkExists = function (table, column, query) {
+    if (!query) return true;
+    return connection(table)
+        .select()
+        .where({ [column]: query })
+        .first()
+};
+
 const selectAllArticles = function (sort_by, order, author, topic) {
     //theres always going to be a default order of descending and sorted by created_at
     //then modify
@@ -23,21 +31,25 @@ const selectAllArticles = function (sort_by, order, author, topic) {
                     .where('articles.topic', topic)
             }
         })
-        .then((articleRes) => {
-            if (articleRes.length === 0) {
-                return Promise.reject({ msg: 'column not found!' })
+        .then((queriedData) => {
+            if (!queriedData.length && author) {
+                return Promise.all([checkExists('users', 'username', author), queriedData])
+            } else if (!queriedData.length && topic) {
+                return Promise.all([checkExists('topics', 'slug', topic), queriedData])
+            }
+            else {
+                return [true, queriedData]
+            }
+        })
+        .then(([articleExists, queriedData]) => {
+            if (articleExists) {
+                return queriedData
             } else {
-                return articleRes
+                return Promise.reject({ msg: 'column not found!' })
             }
         })
 };
 
-const checkExists = function (table, column, query) {
-    return connection(table)
-        .select()
-        .where({ [column]: query })
-        .first()
-};
 
 const selectArticleById = function (article_id) {
     return connection('articles').where('article_id', article_id).then((article) => {
@@ -51,7 +63,7 @@ const selectArticleById = function (article_id) {
 };
 
 const updateArticle = function (voteNum, article_id, selectArticleById) {
-    
+
     return connection('articles').where('article_id', article_id).increment('votes', voteNum || 0).returning('*');
 };
 

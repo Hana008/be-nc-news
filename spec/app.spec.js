@@ -12,11 +12,11 @@ describe('/api', () => {
     after(() => connection.destroy());
     it('DELETE returns 405 and error message', () => {
         return request(app)
-        .delete('/api')
-        .expect(405)
-        .then(res => {
-            expect(res.body).to.eql({ msg: 'method not allowed' });
-        });
+            .delete('/api')
+            .expect(405)
+            .then(res => {
+                expect(res.body).to.eql({ msg: 'method not allowed' });
+            });
     });
     describe('/topics', () => {
         it('GET returns status code 200 and an object with the key of topics and value of an array with the topics data as objects that have all properties', () => {
@@ -52,16 +52,16 @@ describe('/api', () => {
                 .get('/api/users/not-a-username')
                 .expect(404)
                 .then(res => {
-                    expect(res.body).to.eql({msg: 'column not found!'} )
+                    expect(res.body).to.eql({ msg: 'column not found!' })
                 });
         });
         it('PUT returns status code 405 and message when using an invalid method', () => {
             return request(app)
-                    .put('/api/users/lurker')
-                    .expect(405)
-                    .then(res => {
-                        expect(res.body).to.eql({ msg: 'method not allowed' });
-                    });
+                .put('/api/users/lurker')
+                .expect(405)
+                .then(res => {
+                    expect(res.body).to.eql({ msg: 'method not allowed' });
+                });
         });
     });
     describe('/articles', () => {
@@ -184,11 +184,27 @@ describe('/api', () => {
         });
         it('GET returns status code 404 and message when user queries a non existing author', () => {
             return request(app)
-            .get('/api/articles?author=not-an=author')
-            .expect(404)
-            .then(res => {
-                expect(res.body).to.eql({ msg: 'column not found!' });
-            });
+                .get('/api/articles?author=not-an-author')
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.eql({ msg: 'column not found!' });
+                });
+        });
+        it('GET returns status code 200 and an empty array when an existing author is queried but has no articles published', () => {
+            return request(app)
+                .get('/api/articles?author=lurker')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.eql([]);
+                })
+        });
+        it('GET returns status code 200 and an empty array when an existing topic is queried but has no articles', () => {
+            return request(app)
+                .get('/api/articles?topic=paper')
+                .expect(200)
+                .then(res => {
+                    expect(res.body.articles).to.eql([]);
+                })
         });
         describe('/:article_id', () => {
             it('GET returns status code 200 and an object with a key of article and value of an array with the article data as an object that has all properties', () => {
@@ -230,6 +246,7 @@ describe('/api', () => {
                         expect(res.body).to.eql({ msg: 'method not allowed' });
                     })
             });
+           
             describe('/comments', () => {
                 it('POST returns status code 201 and an object with the key of comment and value of an array with an object containing the posted comment', () => {
                     return request(app)
@@ -237,12 +254,29 @@ describe('/api', () => {
                         .send({ username: 'lurker', body: 'text' })
                         .expect(201)
                         .then(res => {
-                            expect(res.body.comment).to.be.an('array');
-                            expect(res.body.comment[0].comment_id).to.eql(19);
-                            expect(res.body.comment[0].author).to.equal('lurker');
-                            expect(res.body.comment[0].article_id).to.equal(1);
-                            expect(res.body.comment[0].votes).to.equal(0);
-                            //   expect(res.body.comment[0].created_at).to.eql()
+                            expect(res.body.comment).to.be.an('object');
+                            expect(res.body.comment.comment_id).to.eql(19);
+                            expect(res.body.comment.author).to.equal('lurker');
+                            expect(res.body.comment.article_id).to.equal(1);
+                            expect(res.body.comment.votes).to.equal(0);
+                        });
+                });
+                it('POST returns status code 404 and informative message when passed an incomplete request', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ body: 'text' })
+                        .expect(404)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'missing information!' })
+                        });
+                });
+                it('POST returns 400 and informative message when an invalid article_id is queried', () => {
+                    return request(app)
+                        .post('/api/articles/not-a-valid-id/comments')
+                        .send({ username: 'lurker', body: 'text' })
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'invalid id!' })
                         });
                 });
                 it('GET returns status code 200 and an object with the key of comments and value of an array of comments as objects containing all properties', () => {
@@ -297,15 +331,23 @@ describe('/api', () => {
                             //test for all keys
                         });
                 });
-                it.only('GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query', () => {
+                it('GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query', () => {
                     return request(app)
-                    .get('/api/articles/1/comments?order=asc')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body.comments).to.be.an('array');
-                        expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
-                        //test for all keys
-                    });
+                        .get('/api/articles/1/comments?order=asc')
+                        .expect(200)
+                        .then(res => {
+                            expect(res.body.comments).to.be.an('array');
+                            expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
+                            //test for all keys
+                        });
+                });
+                it('PUT returns status code 405 and informative message', () => {
+                    return request(app)
+                        .put('/api/articles/1/comments')
+                        .expect(405)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'method not allowed' });
+                        });
                 });
             });
         });
