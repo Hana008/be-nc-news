@@ -124,6 +124,14 @@ describe('/api', () => {
                     expect(res.body.articles).to.be.sortedBy('title', { descending: true })
                 });
         });
+        it('GET returns SOMETHINGG when a query to sort a non-existing column is requested', () => {
+            return request(app)
+                .get('/api/articles?sort_by=not-a-column')
+                .expect(400)
+                .then(res => {
+                    expect(res.body).to.eql({msg: 'column does not exist!'});
+                })
+        });
         it('GET returns 200 and an object with a key of articles and value of an array with article data for the author queried as objects with all properties present', () => {
             return request(app)
                 .get('/api/articles?author=butter_bridge')
@@ -238,6 +246,15 @@ describe('/api', () => {
                         expect(res.body.article.votes).to.equal(100);
                     });
             });
+            it('PATCH returns status code 400 and informative message when an invalid value is passed in to adjust votes', () => {
+                return request(app)
+                    .patch('/api/articles/1')
+                    .send({ inc_votes: 'invalid value'})
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'invalid data type!' });
+                    })
+            });
             it('PUT returns status code 405 and message', () => {
                 return request(app)
                     .put('/api/articles/1')
@@ -246,7 +263,14 @@ describe('/api', () => {
                         expect(res.body).to.eql({ msg: 'method not allowed' });
                     })
             });
-           
+           it('GET returns status code 400 and informative message when an invalid id is requested', () => {
+            return request(app)
+            .get('/api/articles/invalid-id')
+            .expect(400)
+            .then(res => {
+                expect(res.body).to.eql({ msg: 'invalid data type!' });
+            })
+           });
             describe('/comments', () => {
                 it('POST returns status code 201 and an object with the key of comment and value of an array with an object containing the posted comment', () => {
                     return request(app)
@@ -276,7 +300,7 @@ describe('/api', () => {
                         .send({ username: 'lurker', body: 'text' })
                         .expect(400)
                         .then(res => {
-                            expect(res.body).to.eql({ msg: 'invalid id!' })
+                            expect(res.body).to.eql({ msg: 'invalid data type!' })
                         });
                 });
                 it('GET returns status code 200 and an object with the key of comments and value of an array of comments as objects containing all properties', () => {
