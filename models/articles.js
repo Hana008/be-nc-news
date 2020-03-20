@@ -9,10 +9,6 @@ const checkExists = function (table, column, query) {
 };
 
 const selectAllArticles = function (sort_by, order, author, topic) {
-    //theres always going to be a default order of descending and sorted by created_at
-    //then modify
-    //then use checkExists function
-
     return connection
         .select('articles.*')
         .from('articles')
@@ -77,16 +73,6 @@ const insertComment = function (article_id, body) {
 };
 
 const selectComments = function (article_id, sort_by, order) {
-    // if (!sort_by && !order) {
-    //     return connection('comments').where('article_id', article_id).orderBy('created_at', 'desc').returning('*');
-    // } else if (sort_by && order) {
-    //     return connection('comments').orderBy(sort_by, order).returning('*');
-    // } else if (sort_by && !order) {
-    //     return connection('comments').orderBy(sort_by, 'desc').returning('*');
-    // } else if (order && !sort_by) {
-    //     return connection('comments').orderBy('created_at', order).returning('*');
-    // }
-
     return connection('comments').where('article_id', article_id).orderBy(sort_by || 'created_at', order || 'desc')
         .then((commentData) => {
             if (!commentData.length) {

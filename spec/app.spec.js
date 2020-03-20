@@ -402,7 +402,7 @@ describe('/api', () => {
     });
     describe('/comments', () => {
         describe('/:comment_id', () => {
-            it('PATCH returns status code 200 and n object with the key of comments and value of an array containing a comment as an object that has all properties when passed an object with a property value of a number that the comments vote should be adjusted by', () => {
+            it('PATCH returns status code 200 and an object with the key of comments and value of an array containing a comment as an object that has all properties when passed an object with a property value of a number that the comments vote should be adjusted by', () => {
                 return request(app)
                     .patch('/api/comments/1')
                     .send({ inc_votes: -1 })
@@ -411,6 +411,26 @@ describe('/api', () => {
                         expect(res.body.comment).to.be.an('object');
                         expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
                         expect(res.body.comment.votes).to.equal(15);
+                    });
+            });
+            it('PATCH returns status code 200 and an unchanged object with the key of comments and value of an array containing a comment as an object that has all properties when passed a body with no inc_votes property', () => {
+                return request(app)
+                    .patch('/api/comments/1')
+                    .send({})
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.comment).to.be.an('object');
+                        expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+                        expect(res.body.comment.votes).to.equal(16);
+                    });
+            });
+            it('PATCH returns status code 404 and valid message when a valid but non-existent comment id is requested', () => {
+                return request(app)
+                    .patch('/api/comments/1000')
+                    .send({inc_votes: 1})
+                    .expect(404)
+                    .then(res => {
+                        expect(res.body).to.eql({msg: 'id does not exist!'})
                     });
             });
             it('DELETE returns status code 204 and no content', () => {
@@ -426,7 +446,7 @@ describe('/api', () => {
                         expect(res.body).to.eql({ msg: 'method not allowed' });
                     });
             });
-            it.only('PATCH returns status code 400 and informative message when a patch request object with an invalid value is passed in', () => {
+            it('PATCH returns status code 400 and informative message when a patch request object with an invalid value is passed in', () => {
                 return request(app)
                     .patch('/api/comments/1')
                     .send({ inc_votes: 'not-a-valid-value' })
