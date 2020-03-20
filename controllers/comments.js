@@ -1,4 +1,4 @@
-const {updateComment, deleteComment} = require('../models/comments')
+const { updateComment, deleteComment } = require('../models/comments')
 
 const patchComment = function (req, res, next) {
     const { comment_id } = req.params;

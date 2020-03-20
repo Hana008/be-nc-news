@@ -322,7 +322,9 @@ describe('/api', () => {
                         .then(res => {
                             expect(res.body.comments).to.be.an('array');
                             expect(res.body.comments).to.be.sortedBy('votes', { descending: true });
-                            //test for all keys
+                            expect(res.body.comments.forEach(comment => {
+                                expect(comment).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                            }));
                         });
                 });
                 it('GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in a default order of the column "created_at" when a sort_by query is not passed', () => {
@@ -332,7 +334,9 @@ describe('/api', () => {
                         .then(res => {
                             expect(res.body.comments).to.be.an('array');
                             expect(res.body.comments).to.be.sortedBy('created_at', { descending: true });
-                            //test for all keys
+                            expect(res.body.comments.forEach(comment => {
+                                expect(comment).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                            }));
                         });
                 });
                 it("GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query's column and order passed in", () => {
@@ -342,7 +346,9 @@ describe('/api', () => {
                         .then(res => {
                             expect(res.body.comments).to.be.an('array');
                             expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
-                            //test for all keys
+                            expect(res.body.comments.forEach(comment => {
+                                expect(comment).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                            }));
                         });
                 });
                 it("GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query's column in a default descending order when order query is not passed in to specify'", () => {
@@ -352,7 +358,9 @@ describe('/api', () => {
                         .then(res => {
                             expect(res.body.comments).to.be.an('array');
                             expect(res.body.comments).to.be.sortedBy('author', { descending: true });
-                            //test for all keys
+                            expect(res.body.comments.forEach(comment => {
+                                expect(comment).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                            }));
                         });
                 });
                 it('GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query', () => {
@@ -362,7 +370,9 @@ describe('/api', () => {
                         .then(res => {
                             expect(res.body.comments).to.be.an('array');
                             expect(res.body.comments).to.be.sortedBy('created_at', { ascending: true });
-                            //test for all keys
+                            expect(res.body.comments.forEach(comment => {
+                                expect(comment).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                            }));
                         });
                 });
                 it('GET returns status code 404 and informative message when a valid but non-existent id is requested', () => {
@@ -433,10 +443,35 @@ describe('/api', () => {
                         expect(res.body).to.eql({msg: 'id does not exist!'})
                     });
             });
+            it('PATCH returns status code 400 and informative message when an invalid comment id is requested', () => {
+                return request(app)
+                    .patch('/api/comments/not-a-valid-id')
+                    .send({inc_votes: 1})
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body).to.eql({msg: 'invalid data type!'})
+                    });
+            });
             it('DELETE returns status code 204 and no content', () => {
                 return request(app)
                     .delete('/api/comments/1')
                     .expect(204)
+            });
+            it('DELETE returns status code 404 and informative message when an valid non-existing comment id is requested', () => {
+                return request(app)
+                    .delete('/api/comments/1000')
+                    .expect(404)
+                    .then((res) => {
+                        expect(res.body).to.eql({msg: 'id does not exist!'})
+                    })
+            });
+            it('DELETE returns status code 400 and informative message when an invalid comment id is requested', () => {
+                return request(app)
+                    .delete('/api/comments/not-a-number')
+                    .expect(400)
+                    .then((res) => {
+                        expect(res.body).to.eql({msg: 'invalid data type!'})
+                    })
             });
             it('PUT returns status code 405 and message', () => {
                 return request(app)

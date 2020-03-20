@@ -14,7 +14,6 @@ const updateComment = function (comment_id, voteNum) {
         .modify((query) => {
             if (voteNum) {
                 return query
-                    .where('comment_id', comment_id)
                     .increment('votes', voteNum)
                     .returning('*');
             }
@@ -22,22 +21,30 @@ const updateComment = function (comment_id, voteNum) {
         .then((commentData) => {
             if (!commentData.length) {
                 return Promise.all([checkExists('comments', 'comment_id', comment_id), commentData])
+            } else {
+                return [true, commentData]
             }
         })
         .then(([ifExists, commentData]) => {
             if (ifExists) {
                 return commentData
             } else {
-                return Promise.reject({msg: 'id does not exist!'})
+                return Promise.reject({ msg: 'id does not exist!' })
             }
         })
-
-
 };
 const deleteComment = function (comment_id) {
-    return connection('comments')
-        .where('comments.comment_id', comment_id)
-        .del()
+    return checkExists('comments', 'comment_id', comment_id)
+        .then((ifExists) => {
+            if (ifExists) {
+                return connection('comments')
+                    .where('comments.comment_id', comment_id)
+                    .del()
+            } else {
+                return Promise.reject({ msg: 'id does not exist!' })
+
+            }
+        })
 };
 
 module.exports = { updateComment, deleteComment };
