@@ -1,24 +1,14 @@
 const express = require('express');
 const app = express();
-const apiRouter = require('./routes/apiRouter')
+const apiRouter = require('./routes/apiRouter');
+const {send405Error} = require('./errors/index');
+const {errorHandler} = require('./errors/index');
 
-app.use(express.json())
+app.use(express.json());
 
 app.use('/api', apiRouter);
+app.all('/*', send405Error);
 
-app.use((err, req, res, next) => {
-    // console.log('ERROR HANDLING!!!')
-    // console.log(err)
-    const errCodes = {
-        '23502': { status: 404, msg: { msg: 'missing information!' } },
-        '22P02': { status: 400, msg: { msg: 'invalid data type!' } },
-        '42703' : {status: 400, msg: {msg: 'column does not exist!'}}
-    }
-    if (Object.keys(errCodes).includes(err.code)) {
-        res.status(errCodes[err.code].status).send(errCodes[err.code].msg)
-    }
-    else { res.status(404).send(err) }
-
-})
+app.use(errorHandler);
 
 module.exports = app;

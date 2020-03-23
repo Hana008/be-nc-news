@@ -222,7 +222,7 @@ describe('/api', () => {
                     .then(res => {
                         expect(res.body.article).to.be.an('object');
                         expect(res.body.article).to.contain.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
-                        expect(res.body.article.comment_count).to.equal(5)
+                        expect(res.body.article.comment_count).to.equal(13)
                     });
             });
             it('PATCH returns status code 201 and an object with a key of article and value of an array with the article data containing all properties and the votes property adjusted by the value passed in', () => {
@@ -285,11 +285,11 @@ describe('/api', () => {
                             expect(res.body.comment.votes).to.equal(0);
                         });
                 });
-                it('POST returns status code 404 and informative message when passed an incomplete request', () => {
+                it('POST returns status code 400 and informative message when passed an incomplete request', () => {
                     return request(app)
                         .post('/api/articles/1/comments')
                         .send({ body: 'text' })
-                        .expect(404)
+                        .expect(400)
                         .then(res => {
                             expect(res.body).to.eql({ msg: 'missing information!' })
                         });
@@ -315,6 +315,18 @@ describe('/api', () => {
                             }));
                         });
                 });
+                // it('GET returns status code 200 and an object with the key of comments and value of an array of comments as objects containing all properties when an article with no comments is requested', () => {
+                //     return request(app)
+                //         .get('/api/articles/2/comments')
+                //         .expect(200)
+                //         .then(res => {
+                //             expect(res.body.comments).to.be.an('array');
+                //             expect(res.body.comments.length).to.equal(0);
+                //             expect(res.body.comments.forEach(comment => {
+                //                 expect(comment).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+                //             }));
+                //         }); 
+                // });
                 it("GET returns 200 and an object with the key of comments and value of an array of comments as objects containing all properties in order of the query's column passed in", () => {
                     return request(app)
                         .get('/api/articles/1/comments?sort_by=votes')

@@ -29,7 +29,7 @@ const updateComment = function (comment_id, voteNum) {
             if (ifExists) {
                 return commentData
             } else {
-                return Promise.reject({ msg: 'id does not exist!' })
+                return Promise.reject({ status: 404, msg: {msg: 'id does not exist!' }})
             }
         })
 };
@@ -41,7 +41,7 @@ const deleteComment = function (comment_id) {
                     .where('comments.comment_id', comment_id)
                     .del()
             } else {
-                return Promise.reject({ msg: 'id does not exist!' })
+                return Promise.reject({ status: 404, msg: {msg: 'id does not exist!'} })
 
             }
         })

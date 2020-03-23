@@ -5,7 +5,7 @@ const selectUser = function (username) {
         .where('username', username)
         .then((user) => {
             if(user.length === 0) {
-                return Promise.reject({msg: 'column not found!'})
+                return Promise.reject({status: 404, msg:{ msg: 'column not found!'}})
             }
             return user
         })
