@@ -50,7 +50,6 @@ const selectAllArticles = function (sort_by, order, author, topic) {
 const selectArticleById = function (article_id) {
     return connection('articles').where('article_id', article_id).then((article) => {
         // const articleData = article;
-        console.log(article)
         const comment = connection('comments').where('belongs_to', article[0].title);
         return Promise.all([article, comment])
     }).then(([article, comment]) => {
