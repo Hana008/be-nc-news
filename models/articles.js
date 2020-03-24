@@ -9,6 +9,7 @@ const checkExists = function (table, column, query) {
 };
 
 const selectAllArticles = function (sort_by, order, author, topic) {
+
     return connection
         .select('articles.*')
         .from('articles')
@@ -41,29 +42,29 @@ const selectAllArticles = function (sort_by, order, author, topic) {
             if (articleExists) {
                 return queriedData
             } else {
-                return Promise.reject({ status: 404, msg: {msg: 'column not found!' }})
+                return Promise.reject({ status: 404, msg: { msg: 'column not found!' } })
             }
-        })
+        });
+
 };
 
 
 const selectArticleById = function (article_id) {
-    return connection('articles').where('article_id', article_id).then((article) => {
-        // const articleData = article;
-        const comment = connection('comments').where('belongs_to', article[0].title);
-        return Promise.all([article, comment])
-    }).then(([article, comment]) => {
-        console.log(article, comment)
-        // article[0].comment_count = comment.length;
-        // return article
-        const comment_count = article[0].comment_count = comment.length;
-        return connection('articles').where('article', article[0].article_id).update({comment_count : comment_count}).returning('*');
-    })
+
+    return connection
+        .select('articles.*')
+        .from('articles')
+        .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+        .groupBy('articles.article_id')
+        .count({ comment_count: 'comment_id' })
+        .where('articles.article_id', article_id);
+
 };
 
 const updateArticle = function (voteNum, article_id, selectArticleById) {
 
     return connection('articles').where('article_id', article_id).increment('votes', voteNum || 0).returning('*');
+
 };
 
 const insertComment = function (article_id, body) {
@@ -76,11 +77,12 @@ const insertComment = function (article_id, body) {
         return connection('comments').where('author', body.username).insert(comment).returning('*')
     }
     else {
-       return Promise.reject({ status: 400, msg: { msg: 'missing information!' } })
+        return Promise.reject({ status: 400, msg: { msg: 'missing information!' } })
     }
 };
 
 const selectComments = function (article_id, sort_by, order) {
+
     return connection('comments').where('article_id', article_id).orderBy(sort_by || 'created_at', order || 'desc')
         .then((commentData) => {
             if (commentData.length === 0) {
@@ -96,7 +98,8 @@ const selectComments = function (article_id, sort_by, order) {
             } else {
                 return Promise.reject({ status: 404, msg: { msg: 'id does not exist!' } })
             }
-        })
+        });
+
 };
 
 module.exports = { selectAllArticles, selectArticleById, updateArticle, insertComment, selectComments };

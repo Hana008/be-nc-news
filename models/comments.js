@@ -1,14 +1,17 @@
 const connection = require('../db/connection');
 
 const checkExists = function (table, column, query) {
+
     if (!query) return true;
     return connection(table)
         .select()
         .where({ [column]: query })
-        .first()
+        .first();
+
 };
 
 const updateComment = function (comment_id, voteNum) {
+
     return connection('comments')
         .where('comment_id', comment_id)
         .modify((query) => {
@@ -23,17 +26,19 @@ const updateComment = function (comment_id, voteNum) {
                 return Promise.all([checkExists('comments', 'comment_id', comment_id), commentData])
             } else {
                 return [true, commentData]
-            }
+            };
         })
         .then(([ifExists, commentData]) => {
             if (ifExists) {
                 return commentData
             } else {
-                return Promise.reject({ status: 404, msg: {msg: 'id does not exist!' }})
-            }
+                return Promise.reject({ status: 404, msg: { msg: 'id does not exist!' } })
+            };
         })
 };
+
 const deleteComment = function (comment_id) {
+
     return checkExists('comments', 'comment_id', comment_id)
         .then((ifExists) => {
             if (ifExists) {
@@ -41,10 +46,11 @@ const deleteComment = function (comment_id) {
                     .where('comments.comment_id', comment_id)
                     .del()
             } else {
-                return Promise.reject({ status: 404, msg: {msg: 'id does not exist!'} })
+                return Promise.reject({ status: 404, msg: { msg: 'id does not exist!' } })
 
-            }
-        })
+            };
+        });
+
 };
 
 module.exports = { updateComment, deleteComment };
