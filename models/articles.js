@@ -75,7 +75,7 @@ const selectArticleById = function (article_id) {
 
 };
 
-const updateArticle = function (voteNum, article_id, selectArticleById) {
+const updateArticle = function (voteNum, article_id) {
 
     return connection('articles').where('article_id', article_id).increment('votes', voteNum || 0).returning('*');
 

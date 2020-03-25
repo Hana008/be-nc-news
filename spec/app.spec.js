@@ -312,7 +312,7 @@ describe('/api', () => {
                             expect(res.body).to.eql({ msg: 'missing information!' })
                         });
                 });
-                it.only('POST returns 422 when non existent article id is requested', () => {
+                it('POST returns 422 when non existent article id is requested', () => {
                     return request(app)
                         .post('/api/articles/0/comments')
                         .send({ username: 'lurker', body: 'text' })

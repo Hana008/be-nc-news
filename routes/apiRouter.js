@@ -9,6 +9,6 @@ apiRouter.use('/topics', topicsRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/articles', articlesRouter);
 apiRouter.use('/comments', commentsRouter);
-apiRouter.delete('/', send405Error)
+apiRouter.all('/*', send405Error);
 
 module.exports = apiRouter;
