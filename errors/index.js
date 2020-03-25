@@ -14,3 +14,7 @@ exports.errorHandler = (err, req, res, next) => {
   else { res.status(err.status).send(err.msg) }
 
 }
+
+exports.send404Error = (req, res, next) => {
+  res.status(404).send({ msg: 'method not allowed' });
+};

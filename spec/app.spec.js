@@ -235,6 +235,22 @@ describe('/api', () => {
                         expect(res.body.article.comment_count).to.equal('0')
                     });
             });
+            it('GET returns status code 404 when a non existent id is requested', () => {
+                return request(app)
+                .get('/api/articles/0')
+                .expect(404)
+                .then(res => {
+                    expect(res.body).to.eql({ msg: 'article id does not exist!' });
+                })  
+            });
+             it('GET returns status code 400 and informative message when an invalid id is requested', () => {
+                return request(app)
+                    .get('/api/articles/invalid-id')
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body).to.eql({ msg: 'invalid data type!' });
+                    })
+            });
             it('PATCH returns status code 201 and an object with a key of article and value of an array with the article data containing all properties and the votes property adjusted by the value passed in', () => {
                 return request(app)
                     .patch('/api/articles/1')
@@ -273,14 +289,6 @@ describe('/api', () => {
                         expect(res.body).to.eql({ msg: 'method not allowed' });
                     })
             });
-            it('GET returns status code 400 and informative message when an invalid id is requested', () => {
-                return request(app)
-                    .get('/api/articles/invalid-id')
-                    .expect(400)
-                    .then(res => {
-                        expect(res.body).to.eql({ msg: 'invalid data type!' });
-                    })
-            });
             describe('/comments', () => {
                 it('POST returns status code 201 and an object with the key of comment and value of an array with an object containing the posted comment', () => {
                     return request(app)
@@ -302,6 +310,15 @@ describe('/api', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body).to.eql({ msg: 'missing information!' })
+                        });
+                });
+                it.only('POST returns 422 when non existent article id is requested', () => {
+                    return request(app)
+                        .post('/api/articles/0/comments')
+                        .send({ username: 'lurker', body: 'text' })
+                        .expect(404)
+                        .then(res => {
+                            expect(res.body).to.eql({ msg: 'article id does not exist!' })
                         });
                 });
                 it('POST returns 400 and informative message when an invalid article_id is queried', () => {

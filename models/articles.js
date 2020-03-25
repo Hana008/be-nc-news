@@ -57,7 +57,21 @@ const selectArticleById = function (article_id) {
         .leftJoin('comments', 'articles.article_id', 'comments.article_id')
         .groupBy('articles.article_id')
         .count({ comment_count: 'comment_id' })
-        .where('articles.article_id', article_id);
+        .where('articles.article_id', article_id)
+        .then((articleData) => {
+            if (articleData.length === 0) {
+                return Promise.all([checkExists('articles', 'article_id', article_id), articleData])
+            } else {
+                return [true, articleData]
+            }
+        })
+        .then(([articleExists, articleData]) => {
+            if (articleExists) {
+                return articleData
+            } else {
+                return Promise.reject({ status: 404, msg: { msg: 'article id does not exist!' } })
+            }
+        });
 
 };
 
@@ -68,13 +82,23 @@ const updateArticle = function (voteNum, article_id, selectArticleById) {
 };
 
 const insertComment = function (article_id, body) {
+
     if (body.body && body.username) {
-        const comment = {
-            'article_id': article_id,
-            'author': body.username,
-            'body': body.body
-        };
-        return connection('comments').where('author', body.username).insert(comment).returning('*')
+
+        return Promise.all([checkExists('articles', 'article_id', article_id)])
+            .then(([articleExists]) => {
+                if(articleExists) {
+
+                    const comment = {
+                        'article_id': article_id,
+                        'author': body.username,
+                        'body': body.body
+                    };
+                    return connection('comments').where('author', body.username).insert(comment).returning('*')
+                } else {
+                    return Promise.reject({status: 404, msg: {msg: 'article id does not exist!'}})
+                }
+            })
     }
     else {
         return Promise.reject({ status: 400, msg: { msg: 'missing information!' } })
