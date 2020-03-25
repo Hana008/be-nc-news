@@ -24,19 +24,7 @@ install required dependencies
 npm install
 ```
 
-for testing install development dependencies too
-
-```
-npm install mocha chai supertest chai-sorted
-```
-
 ### Running the tests
-
-to seed the test database
-
-```
-npm run seed
-```
 
 to run tests
 
