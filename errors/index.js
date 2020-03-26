@@ -11,7 +11,11 @@ exports.errorHandler = (err, req, res, next) => {
   if (Object.keys(errCodes).includes(err.code)) {
     res.status(errCodes[err.code].status).send(errCodes[err.code].msg)
   }
-  else { res.status(err.status).send(err.msg) }
+  else if (err.status && err.msg) {
+    res.status(err.status).send(err.msg)
+  } else {
+    res.status(500).send('internal server error!')
+  }
 
 }
 
