@@ -14,7 +14,7 @@ exports.makeRefObj = list => {
 
     if (list.length === 0 || list === undefined) return [];
     const refObj = {};
-    list.filter(obj => refObj[obj.title] = obj.article_id);
+    list.forEach(obj => refObj[obj.title] = obj.article_id);
 
     return refObj
 };
