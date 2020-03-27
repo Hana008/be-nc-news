@@ -21,7 +21,7 @@ const selectAllArticles = function (sort_by, order, author, topic) {
             if (author && !topic) {
                 query
                     .where('articles.author', author)
-            }
+            } // put both modifies into one if statement
         }).modify((query) => {
             if (topic && !author) {
                 query
@@ -87,7 +87,7 @@ const insertComment = function (article_id, body) {
 
         return Promise.all([checkExists('articles', 'article_id', article_id)])
             .then(([articleExists]) => {
-                if(articleExists) {
+                if (articleExists) {
 
                     const comment = {
                         'article_id': article_id,
@@ -96,7 +96,7 @@ const insertComment = function (article_id, body) {
                     };
                     return connection('comments').where('author', body.username).insert(comment).returning('*')
                 } else {
-                    return Promise.reject({status: 404, msg: {msg: 'article id does not exist!'}})
+                    return Promise.reject({ status: 404, msg: { msg: 'article id does not exist!' } })
                 }
             })
     }

@@ -1,3 +1,3 @@
-app.listen(5432, () => {
-    // console.log(`Server is listening on port 5432...`);
-  });
+const { PORT = 9090 } = process.env;
+
+app.listen(PORT, () => console.log(`Listening on ${PORT}...`));
