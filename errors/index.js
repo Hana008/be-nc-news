@@ -16,8 +16,7 @@ exports.errorHandler = (err, req, res, next) => {
   } else {
     res.status(500).send('internal server error!')
   }
-
-}
+};
 
 exports.send404Error = (req, res, next) => {
   res.status(404).send({ msg: 'method not allowed' });

@@ -1,6 +1,6 @@
 const connection = require('../db/connection')
 
-const selectUser = function (username) {
+const selectUser = (username) => {
 
     return connection('users')
         .where('username', username)
@@ -10,7 +10,6 @@ const selectUser = function (username) {
             }
             return user
         });
-
 };
 
 module.exports = selectUser;

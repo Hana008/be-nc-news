@@ -1,6 +1,7 @@
 const connection = require('../db/connection');
 
-const checkExists = function (table, column, query) {
+const checkExists = (table, column, query) => {
+
     if (!query) return true;
     return connection(table)
         .select()
@@ -8,7 +9,7 @@ const checkExists = function (table, column, query) {
         .first()
 };
 
-const selectAllArticles = function (sort_by, order, author, topic) {
+const selectAllArticles = (sort_by, order, author, topic) => {
 
     return connection
         .select('articles.*')
@@ -18,12 +19,10 @@ const selectAllArticles = function (sort_by, order, author, topic) {
         .count({ comment_count: 'comment_id' })
         .orderBy(sort_by || 'created_at', order || 'desc')
         .modify((query) => {
-            if (author && !topic) {
+            if (author) {
                 query
                     .where('articles.author', author)
-            } // put both modifies into one if statement
-        }).modify((query) => {
-            if (topic && !author) {
+            } else if (topic) {
                 query
                     .where('articles.topic', topic)
             }
@@ -49,7 +48,7 @@ const selectAllArticles = function (sort_by, order, author, topic) {
 };
 
 
-const selectArticleById = function (article_id) {
+const selectArticleById = (article_id) => {
 
     return connection
         .select('articles.*')
@@ -75,16 +74,14 @@ const selectArticleById = function (article_id) {
 
 };
 
-const updateArticle = function (voteNum, article_id) {
+const updateArticle = (voteNum, article_id) => {
 
     return connection('articles').where('article_id', article_id).increment('votes', voteNum || 0).returning('*');
-
 };
 
 const insertComment = function (article_id, body) {
 
     if (body.body && body.username) {
-
         return Promise.all([checkExists('articles', 'article_id', article_id)])
             .then(([articleExists]) => {
                 if (articleExists) {
@@ -105,7 +102,7 @@ const insertComment = function (article_id, body) {
     }
 };
 
-const selectComments = function (article_id, sort_by, order) {
+const selectComments = (article_id, sort_by, order) => {
 
     return connection('comments').where('article_id', article_id).orderBy(sort_by || 'created_at', order || 'desc')
         .then((commentData) => {

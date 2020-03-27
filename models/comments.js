@@ -1,16 +1,15 @@
 const connection = require('../db/connection');
 
-const checkExists = function (table, column, query) {
+const checkExists = (table, column, query) => {
 
     if (!query) return true;
     return connection(table)
         .select()
         .where({ [column]: query })
         .first();
-
 };
 
-const updateComment = function (comment_id, voteNum) {
+const updateComment = (comment_id, voteNum) => {
 
     return connection('comments')
         .where('comment_id', comment_id)
@@ -37,7 +36,7 @@ const updateComment = function (comment_id, voteNum) {
         })
 };
 
-const deleteComment = function (comment_id) {
+const deleteComment = (comment_id) => {
 
     return checkExists('comments', 'comment_id', comment_id)
         .then((ifExists) => {
@@ -50,7 +49,6 @@ const deleteComment = function (comment_id) {
 
             };
         });
-
 };
 
 module.exports = { updateComment, deleteComment };

@@ -6,7 +6,6 @@ exports.formatDates = list => {
         obj.created_at = new Date(time)
         return obj
     });
-
     return formattedDate
 };
 
@@ -15,7 +14,6 @@ exports.makeRefObj = list => {
     if (list.length === 0 || list === undefined) return [];
     const refObj = {};
     list.forEach(obj => refObj[obj.title] = obj.article_id);
-
     return refObj
 };
 
@@ -30,7 +28,7 @@ exports.formatComments = (comments, articleRef, formatDates) => {
         objCopy.article_id = articleRef[objCopy.belongs_to]
         delete objCopy.belongs_to
         return objCopy
-    })
+    });
 
     const finalFormattedComments = formatDates(formattedComments);
 

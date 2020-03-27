@@ -7,7 +7,7 @@ const {
 
 const { formatDates, formatComments, makeRefObj } = require('../utils/utils');
 
-exports.seed = function (knex) {
+exports.seed = (knex) => {
 
   return knex.migrate.rollback()
     .then(() => {

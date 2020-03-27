@@ -1,20 +1,20 @@
 const { selectArticleById, updateArticle, insertComment, selectComments, selectAllArticles } = require('../models/articles')
 
-const getAllArticles = function (req, res, next) {
-    const {sort_by, order, author, topic} = req.query;
+const getAllArticles = (req, res, next) => {
+    const { sort_by, order, author, topic } = req.query;
     selectAllArticles(sort_by, order, author, topic).then((articles) => {
-        res.status(200).send({articles})
+        res.status(200).send({ articles })
     }).catch(next)
 };
 
-const getArticleById = function (req, res, next) {
+const getArticleById = (req, res, next) => {
     const { article_id } = req.params;
     selectArticleById(article_id).then(([article]) => {
         res.status(200).send({ article })
     }).catch(next)
 };
 
-const patchArticleById = function (req, res, next) {
+const patchArticleById = (req, res, next) => {
     const { article_id } = req.params;
     const { inc_votes } = req.body;
     updateArticle(inc_votes, article_id).then(([article]) => {
@@ -22,7 +22,7 @@ const patchArticleById = function (req, res, next) {
     }).catch(next)
 };
 
-const postComment = function (req, res, next) {
+const postComment = (req, res, next) => {
     const { article_id } = req.params;
     const body = req.body;
     insertComment(article_id, body).then(([comment]) => {
@@ -30,7 +30,7 @@ const postComment = function (req, res, next) {
     }).catch(next)
 };
 
-const getComments = function (req, res, next) {
+const getComments = (req, res, next) => {
     const { article_id } = req.params;
     const { order } = req.query
     const { sort_by } = req.query;
