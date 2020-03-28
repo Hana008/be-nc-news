@@ -4,7 +4,7 @@ Welcome to NC-News! This project is the back-end to an API for _Northcoders News
 It includes a server with a variety of endpoints and a database.
 The server utilises an __MVC pattern__.
 All endpoints and utility functions have been tested using __full TDD__.
-This project is hosted using [Heroku](www.google.com)
+This project is hosted using [Heroku](https://nc-news-ltd.herokuapp.com/)
 
 ## Getting started
 
