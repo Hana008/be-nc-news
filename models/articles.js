@@ -10,7 +10,7 @@ const checkExists = (table, column, query) => {
 };
 
 const selectAllArticles = (sort_by, order, author, topic) => {
-
+    
     return connection
         .select('articles.*')
         .from('articles')
@@ -85,7 +85,6 @@ const insertComment = function (article_id, body) {
         return Promise.all([checkExists('articles', 'article_id', article_id)])
             .then(([articleExists]) => {
                 if (articleExists) {
-
                     const comment = {
                         'article_id': article_id,
                         'author': body.username,
