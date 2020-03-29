@@ -1,7 +1,7 @@
 # be-nc-news
 
 Welcome to NC-News! This project is the back-end to an API for _Northcoders News_. 
-It includes a server with a variety of [endpoints](https://github.com/Hana008/be-nc-news/blob/master/endpoints.json) and a database.
+It includes a server with a variety of [endpoints](https://github.com/Hana008/be-nc-news/blob/master/endpoints.json) and a relational database.
 The server utilises an __MVC pattern__.
 All endpoints and utility functions have been tested using __full TDD__.
 This project is hosted using [Heroku](https://nc-news-ltd.herokuapp.com/)
@@ -10,7 +10,7 @@ This project is hosted using [Heroku](https://nc-news-ltd.herokuapp.com/)
 
 ### Installing
 
-clone this repository
+clone and open this repository
 
 ```
 git clone https://github.com/Hana008/be-nc-news
@@ -18,7 +18,7 @@ cd be-nc-news
 code .
 ```
 
-install required dependencies
+install all dependencies
 
 ```
 npm install
